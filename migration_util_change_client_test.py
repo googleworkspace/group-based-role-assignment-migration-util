@@ -47,6 +47,9 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
     # self.mock_google_api_client.get_role_assignment.return_value = []
     self.mock_google_api_client.list_role_assignments.return_value = []
     self.mock_dry_run_change_client.list_role_assignments.return_value = []
+    self.mock_dry_run_change_client.list_deleted_role_assignments.return_value = (
+        []
+    )
     # Call the insert_ra method
     self.client.insert_ra(
         role_id, assignee_email, assignee_type, scope_type, None
@@ -68,6 +71,9 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
     }
     self.mock_google_api_client.list_role_assignments.return_value = []
     self.mock_dry_run_change_client.list_role_assignments.return_value = []
+    self.mock_dry_run_change_client.list_deleted_role_assignments.return_value = (
+        []
+    )
     # Call the insert_ra method
     self.client.insert_ra(
         role_id, assignee_email, assignee_type, scope_type, None
@@ -224,12 +230,14 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
             'roleId': 'role1',
             'assignedTo': 'group1',
             'assigneeType': 'group',
+            'roleAssignmentId': 'ra1',
             'scopeType': 'scope1',
         },
         {
             'roleId': 'role2',
             'assignedTo': 'group2',
             'assigneeType': 'group',
+            'roleAssignmentId': 'ra2',
             'scopeType': 'scope2',
         },
     ]
@@ -251,12 +259,14 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
             'roleId': 'role1',
             'assignedTo': 'group1',
             'assigneeType': 'group',
+            'roleAssignmentId': 'ra1',
             'scopeType': 'scope1',
         },
         {
             'roleId': 'role2',
             'assignedTo': 'group2',
             'assigneeType': 'group',
+            'roleAssignmentId': 'ra2',
             'scopeType': 'scope2',
         },
     ]
@@ -280,11 +290,13 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
             'roleId': 'role1',
             'assignedTo': 'group1',
             'assigneeType': 'group',
+            'roleAssignmentId': 'ra1',
             'scopeType': 'scope1',
         },
         {
             'roleId': 'role1',
             'assignedTo': 'group2',
+            'roleAssignmentId': 'ra2',
             'assigneeType': 'group',
             'scopeType': 'scope2',
         },
@@ -294,12 +306,14 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
         {
             'roleId': 'role1',
             'assignedTo': 'group3',
+            'roleAssignmentId': 'ra3',
             'assigneeType': 'group',
             'scopeType': 'scope3',
         },
         {
             'roleId': 'role1',
             'assignedTo': 'group4',
+            'roleAssignmentId': 'ra4',
             'assigneeType': 'group',
             'scopeType': 'scope4',
         },
@@ -310,12 +324,66 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
     self.mock_dry_run_change_client.list_role_assignments.return_value = (
         mock_role_assignments_2
     )
+    self.mock_dry_run_change_client.list_deleted_role_assignments.return_value = (
+        []
+    )
 
     role_assignments = self.client.list_role_assignments(role_id='role1')
 
     self.assertEqual(
         role_assignments, mock_role_assignments_1 + mock_role_assignments_2
     )
+
+  def test_list_role_assignments_dry_run_deleted_ras(self):
+    # Test when in dry run mode, and role assignments are found.
+    # Set dry_run to False for this test.
+    self.client.dry_run = True
+
+    mock_role_assignments_1 = [
+        {
+            'roleId': 'role1',
+            'assignedTo': 'group1',
+            'roleAssignmentId': 'raId1',
+            'assigneeType': 'group',
+            'scopeType': 'scope1',
+        },
+        {
+            'roleId': 'role1',
+            'assignedTo': 'group2',
+            'roleAssignmentId': 'raId2',
+            'assigneeType': 'group',
+            'scopeType': 'scope2',
+        },
+    ]
+
+    mock_role_assignments_2 = [
+        {
+            'roleId': 'role1',
+            'assignedTo': 'group3',
+            'roleAssignmentId': 'raId3',
+            'assigneeType': 'group',
+            'scopeType': 'scope3',
+        },
+        {
+            'roleId': 'role1',
+            'assignedTo': 'group4',
+            'roleAssignmentId': 'raId4',
+            'assigneeType': 'group',
+            'scopeType': 'scope4',
+        },
+    ]
+
+    self.mock_google_api_client.list_role_assignments.return_value = (
+        mock_role_assignments_1
+    )
+    self.mock_dry_run_change_client.list_role_assignments.return_value = (
+        mock_role_assignments_2
+    )
+    self.mock_dry_run_change_client.list_deleted_role_assignments.return_value = (
+        mock_role_assignments_2
+    )
+    role_assignments = self.client.list_role_assignments(role_id='role1')
+    self.assertEqual(role_assignments, mock_role_assignments_1)
 
   def test_insert_member_into_group_with_dry_run_false(self):
     self.client.dry_run = False
@@ -330,7 +398,7 @@ class TestMigrationUtilChangeClient(unittest.TestCase):
         group_email, user_email
     )
     self.mock_dry_run_change_client.insert_member_into_group.assert_not_called()
-    
+
   def test_insert_member_into_group_with_dry_run_true(self):
     self.client.dry_run = True
     self.mock_google_api_client.group_has_member.return_value = False

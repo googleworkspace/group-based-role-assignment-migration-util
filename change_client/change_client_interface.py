@@ -94,3 +94,7 @@ class ChangeClientInterface(abc.ABC):
   @abc.abstractmethod
   def get_customer(self) -> Optional[Mapping[str, Any]]:
     """Returns the customer information for the current customer."""
+  
+  @abc.abstractmethod
+  def get_primary_email(self) -> str:
+    """Returns the Oauth token principals email"""

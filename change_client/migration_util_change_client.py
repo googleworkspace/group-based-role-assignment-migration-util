@@ -175,6 +175,15 @@ class MigrationUtilChangeClient(change_client_interface.ChangeClientInterface):
       role_assignments.extend(
           self.dry_run_changes.list_role_assignments(role_id, user_id)
       )
+      dry_run_deleted_ra_ids = {
+          item['roleAssignmentId']
+          for item in self.dry_run_changes.list_deleted_role_assignments()
+      }
+      role_assignments = [
+          ra
+          for ra in role_assignments
+          if ra['roleAssignmentId'] not in dry_run_deleted_ra_ids
+      ]
     return role_assignments
 
   def list_roles(self) -> Sequence[Mapping[str, Any]]:
@@ -212,3 +221,6 @@ class MigrationUtilChangeClient(change_client_interface.ChangeClientInterface):
 
   def get_customer(self) -> Optional[Mapping[str, Any]]:
     return self.google_api_client.get_customer()
+  
+  def get_primary_email(self) -> str:
+    return self.google_api_client.get_primary_email()

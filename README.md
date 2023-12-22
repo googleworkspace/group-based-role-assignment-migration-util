@@ -92,6 +92,9 @@ before running in wet-run mode by setting the flag --wet_run.**
 
 **Note that the utility has no undo mechanism.**
 
+**Utility run times may be very long ( hours ), please run as background
+process**
+
 To use the utility, you will need to provide the following:
 
 *   `--oa_client_id_creds` The path to the

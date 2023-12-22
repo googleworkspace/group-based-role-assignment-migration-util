@@ -1109,6 +1109,42 @@ class TestMigrationUtility(unittest.TestCase):
         },
     )
 
+  def test_principal_is_super_admin(self):
+    self.mock_migration_util_change_client.get_primary_email.return_value = (
+        "admin@example.com"
+    )
+    self.mock_migration_util_change_client.list_role_assignments.return_value = [
+        {"roleId": "superadminrole"}
+    ]
+    self.mock_migration_util_change_client.get_role.return_value = {
+        "isSuperAdminRole": True
+    }
+    self.assertTrue(self.migration_util.check_principal_is_super_admin())
+
+  def test_principal_is_not_super_admin(self):
+    self.mock_migration_util_change_client.get_primary_email.return_value = (
+        "admin@example.com"
+    )
+    self.mock_migration_util_change_client.list_role_assignments.return_value = [
+        {"roleId": "normaluserrole"}
+    ]
+    self.mock_migration_util_change_client.get_role.return_value = {
+        "isSuperAdminRole": False
+    }
+    self.assertFalse(self.migration_util.check_principal_is_super_admin())
+
+  def test_runtime_error(self):
+    # Mocking the necessary dependencies
+    self.mock_migration_util_change_client.get_primary_email.return_value = (
+        "admin@example.com"
+    )
+    self.mock_migration_util_change_client.list_role_assignments.side_effect = (
+        RuntimeError()
+    )
+
+    result = self.migration_util.check_principal_is_super_admin()
+    self.assertFalse(result)
+
 
 if __name__ == "__main__":
   unittest.main()

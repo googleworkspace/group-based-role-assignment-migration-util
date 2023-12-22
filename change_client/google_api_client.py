@@ -85,6 +85,9 @@ class GoogleApiClient(change_client_interface.ChangeClientInterface):
   def get_identity_client(self) -> Any:
     return self._identity_client
 
+  def get_people_client(self) -> Any:
+    return self._people_client
+
   def reauth_and_refresh_clients(self):
     self._credential_store.authenticate()
     self._create_or_refresh_clients()
@@ -102,6 +105,32 @@ class GoogleApiClient(change_client_interface.ChangeClientInterface):
         credentials=self._credential_store.get_oauth_token(),
         cache_discovery=False,
     )
+    self._people_client = discovery.build(
+        'people',
+        'v1',
+        credentials=self._credential_store.get_oauth_token(),
+        cache_discovery=False,
+    )
+
+  @retry_with_credential_refresh
+  def get_primary_email(self) -> str:
+    person_info = (
+        self._people_client.people()
+        .get(resourceName='people/me', personFields='emailAddresses')
+        .execute()
+    )
+    authenticated_email = None
+
+    if 'emailAddresses' in person_info:
+      for email_info in person_info['emailAddresses']:
+        if (
+            'metadata' in email_info
+            and 'primary' in email_info['metadata']
+            and email_info['metadata']['primary']
+        ):
+          authenticated_email = email_info['value']
+          break
+    return authenticated_email
 
   @retry_with_credential_refresh
   def get_customer(self) -> Optional[Mapping[str, Any]]:

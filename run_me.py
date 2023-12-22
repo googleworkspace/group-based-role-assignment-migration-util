@@ -138,7 +138,7 @@ def main(unused_argv):
           logger.Logger().get_instance().get_log_path()
       )
   )
-
+  runner.do_precheck()
   while True:
     logger.Logger.get_instance().log(
         '\nEnter the phase that you would like to execute:'

@@ -16,7 +16,8 @@ class DryRunChangeClient(change_client_interface.ChangeClientInterface):
   """Dry-Run change client to simulate dry-run role-assignment / group changes."""
 
   def __init__(self):
-    self._ras = []
+    self._inserted_ras = []
+    self._deleted_ras = []
     self._groups = {}
     self._group_to_members = collections.defaultdict(list)
 
@@ -37,6 +38,9 @@ class DryRunChangeClient(change_client_interface.ChangeClientInterface):
 
   def list_roles(self) -> Sequence[Mapping[str, Any]]:
     raise ValueError('Unexpected dry-run client check for list_roles')
+
+  def get_primary_email(self) -> str:
+    raise ValueError('Unexpected dry-run client check for get_primary_email')
 
   def create_group(
       self,
@@ -75,14 +79,15 @@ class DryRunChangeClient(change_client_interface.ChangeClientInterface):
     return self._group_to_members[group_email]
 
   def insert_role_assignment(self, role_assignment: Mapping[str, Any]) -> None:
-    self._ras.append(role_assignment)
+    self._inserted_ras.append(role_assignment)
 
   def delete_role_assignment(self, role_assignment_id: str) -> bool:
-    self._ras = [
+    self._inserted_ras = [
         item
-        for item in self._ras
+        for item in self._inserted_ras
         if item['roleAssignmentId'] != role_assignment_id
     ]
+    self._deleted_ras.append(role_assignment_id)
     return True
 
   def list_role_assignments(
@@ -96,14 +101,19 @@ class DryRunChangeClient(change_client_interface.ChangeClientInterface):
     elif role_id is not None:
       return [
           assignment
-          for assignment in self._ras
+          for assignment in self._inserted_ras
           if assignment.get('roleId') == role_id
       ]
     elif user_id is not None:
       return [
           assignment
-          for assignment in self._ras
+          for assignment in self._inserted_ras
           if assignment.get('userId') == user_id
       ]
     else:
-      return self._ras
+      return self._inserted_ras
+    
+  def list_deleted_role_assignments(
+      self
+  ) -> Sequence[Mapping[str, Any]]:
+    return self._deleted_ras

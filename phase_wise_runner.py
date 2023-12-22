@@ -55,6 +55,14 @@ class PhaseWiseRunner:
     )
     self.delete_dup_ras_to_sa = delete_dup_ras_to_sa
 
+  def do_precheck(self):
+    """Precheck phase."""
+    if not self.migration_util.check_principal_is_super_admin():
+      raise RuntimeError(
+          'Must run script with authority ( Oauth consent ) of super-admin. See'
+          ' README for details'
+      )
+
   def do_phase_read(self):
     """Run read phase."""
     start_time = time.time()

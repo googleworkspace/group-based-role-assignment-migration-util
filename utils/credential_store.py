@@ -23,24 +23,26 @@ And also gets the token and gives user a link to login for Oauth flow
 import os
 import os.path
 from typing import Optional
-from google.auth.transport import requests
 from google.auth.exceptions import RefreshError
+from google.auth.transport import requests
 from google.oauth2 import credentials
 from google_auth_oauthlib import flow
 from utils import logger
 
 
 SCOPES = [
-    'https://www.googleapis.com/auth/admin.directory.orgunit',
     'https://www.googleapis.com/auth/admin.directory.user',
+    'https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly',
     'https://www.googleapis.com/auth/admin.directory.group.member',
     'https://www.googleapis.com/auth/admin.directory.group',
-    'https://www.googleapis.com/auth/admin.directory.rolemanagement',
-    'https://www.googleapis.com/auth/admin.directory.rolemanagement.readonly',
     'https://www.googleapis.com/auth/cloud-identity.groups',
+    'https://www.googleapis.com/auth/admin.directory.orgunit',
+    'https://www.googleapis.com/auth/userinfo.profile',
+    'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/admin.directory.customer.readonly',
+    'https://www.googleapis.com/auth/admin.directory.rolemanagement',
+    'openid'
 ]
-
 OA_TOKEN_FILE_NAME = 'oa-token.json'
 
 

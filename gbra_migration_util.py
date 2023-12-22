@@ -668,3 +668,25 @@ class MigrationUtility:
             sa_user_key=sa_assignment['assignedTo'],
             super_admin_role_id=sa_role['roleId'],
         )
+
+  def check_principal_is_super_admin(self) -> bool:
+    """Precheck if the principal is super-admin."""
+    try:
+      email = self.migration_util_change_util.get_primary_email()
+      if email is None:
+        # allow the script to continue
+        return True
+    except RuntimeError as e:
+      # allow the script to continue
+      return True
+    try:
+      ras = self.migration_util_change_util.list_role_assignments(None, email)
+      for ra in ras:
+        if self.migration_util_change_util.get_role(ra['roleId']).get(
+            'isSuperAdminRole', False
+        ):
+          return True
+    except RuntimeError as e:
+      # Couldnt retrieve role-assignments - not SA 
+      return False
+    return False
