@@ -65,6 +65,8 @@ sequentially and in the order : READ-ONLY , MODIFY , CLEANUP.
 
     *   [ AdminSDK API ](https://console.cloud.google.com/apis/api/admin.googleapis.com)
     *   [ Cloud identity API ](https://console.cloud.google.com/apis/library/cloudidentity.googleapis.com)
+    *   [ Google People API ](https://console.cloud.google.com/apis/library/people.googleapis.com)
+    *   [ Google+ API ](https://console.cloud.google.com/apis/library/plus.googleapis.com)
 
 2.  Get
     [ OAuth-Client ID credentials ](https://developers.google.com/workspace/guides/create-credentials#oauth-client-id)
