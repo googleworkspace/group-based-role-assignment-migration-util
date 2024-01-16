@@ -22,7 +22,7 @@ sequentially and in the order : READ-ONLY , MODIFY , CLEANUP.
         role-assignments exceed a
         [limit](https://support.google.com/a/answer/9807615) (default:500).
         These will be referred to as role-assignments-to-be-migrated.
-    *   MODIFY :
+*   MODIFY :
     *   For each scope/organizational-unit where the number of assignments
         exceed the limit.
         *   We find the minimum set of roles to be migrated to group based
