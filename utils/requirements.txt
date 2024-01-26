@@ -1,5 +1,0 @@
-google-api-python-client==2.38.0
-google-auth-oauthlib
-absl-py
-tabulate
-requests==2.26.0
